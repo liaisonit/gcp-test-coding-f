@@ -199,7 +199,6 @@ const StepUpCalculatorWidget = () => {
   const [years, setYears] = useState(15);
   const [expectedReturn, setExpectedReturn] = useState(12);
 
-  // Step-Up SIP Math
   let currentSip = initialSip;
   let totalInvested = 0;
   let futureValue = 0;
@@ -294,7 +293,7 @@ const EmiVsSipCalculatorWidget = () => {
     <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 xl:gap-24 animate-in fade-in zoom-in-95 duration-500">
       <div className="lg:col-span-7 space-y-8 lg:space-y-10">
         <div className="bg-red-50 border border-red-100 p-6 rounded-2xl mb-4">
-          <p className="text-sm text-red-800 font-medium">The Cost of Debt: See the exact wealth you forfeit when you choose to pay interest instead of earning it.</p>
+          <p className="text-sm text-red-800 font-medium">The Cost of Debt: See the exact wealth you forfeit when you choose to pay an EMI instead of investing it.</p>
         </div>
         <FadeIn delay={100}>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-4">
@@ -341,6 +340,89 @@ const EmiVsSipCalculatorWidget = () => {
             <p className="text-xs sm:text-sm font-bold tracking-widest text-zinc-500 uppercase mb-3">If invested in SIP instead:</p>
             <p className="text-4xl sm:text-5xl md:text-6xl font-light text-emerald-400 tracking-tight leading-none mb-4">{formatCurrency(projectedWealth)}</p>
             <p className="text-sm text-emerald-500/80 font-light bg-emerald-900/30 inline-block px-3 py-1 rounded-lg">Opportunity Cost: {formatCurrency(wealthLost)}</p>
+          </div>
+        </FadeIn>
+      </div>
+    </div>
+  );
+};
+
+// --- INSANE MAGICAL TOOL: Smart EMI (Zero Cost Loan) ---
+const SmartEmiCalculatorWidget = () => {
+  const [loanAmount, setLoanAmount] = useState(5000000);
+  const [tenureYears, setTenureYears] = useState(20);
+  const [loanInterest, setLoanInterest] = useState(8.5);
+  const [sipReturn, setSipReturn] = useState(12);
+
+  // Math Setup
+  const r = loanInterest / 12 / 100;
+  const n = tenureYears * 12;
+  const emi = loanAmount * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
+  const totalPaidToBank = emi * n;
+  const totalInterestPaid = totalPaidToBank - loanAmount;
+
+  // SIP Math to recover total interest
+  const i = sipReturn / 12 / 100;
+  const sipFactor = ((Math.pow(1 + i, n) - 1) / i) * (1 + i);
+  const requiredSip = totalInterestPaid / sipFactor;
+  const sipPercentageOfEmi = ((requiredSip / emi) * 100).toFixed(1);
+
+  return (
+    <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 xl:gap-24 animate-in fade-in zoom-in-95 duration-500">
+      <div className="lg:col-span-7 space-y-8 lg:space-y-10">
+        <div className="bg-emerald-50 border border-emerald-200 p-6 rounded-2xl mb-4">
+          <p className="text-sm text-emerald-900 font-medium">The Magical Math: Start a fractional parallel SIP alongside your EMI. By the end of your loan tenure, your SIP corpus will recover <strong className="font-bold">100% of the interest</strong> you paid to the bank.</p>
+        </div>
+        <FadeIn delay={100}>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-4">
+            <label className="text-xs sm:text-sm font-medium tracking-widest text-zinc-500 uppercase">Loan Amount</label>
+            <div className="text-xl sm:text-2xl font-light text-zinc-900 bg-white px-4 py-2 rounded-xl border border-zinc-200 w-full sm:w-auto">{formatCurrency(loanAmount)}</div>
+          </div>
+          <input type="range" min="500000" max="50000000" step="100000" value={loanAmount} onChange={(e) => setLoanAmount(Number(e.target.value))} className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-emerald-600" />
+        </FadeIn>
+        <FadeIn delay={150}>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-4">
+            <label className="text-xs sm:text-sm font-medium tracking-widest text-zinc-500 uppercase">Loan Tenure</label>
+            <div className="text-xl sm:text-2xl font-light text-zinc-900 bg-white px-4 py-2 rounded-xl border border-zinc-200 w-full sm:w-auto">{tenureYears} Years</div>
+          </div>
+          <input type="range" min="5" max="30" step="1" value={tenureYears} onChange={(e) => setTenureYears(Number(e.target.value))} className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-emerald-600" />
+        </FadeIn>
+        <FadeIn delay={200}>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-4">
+            <label className="text-xs sm:text-sm font-medium tracking-widest text-zinc-500 uppercase">Home Loan Interest</label>
+            <div className="text-xl sm:text-2xl font-light text-zinc-900 bg-white px-4 py-2 rounded-xl border border-zinc-200 w-full sm:w-auto">{loanInterest}%</div>
+          </div>
+          <input type="range" min="6" max="15" step="0.1" value={loanInterest} onChange={(e) => setLoanInterest(Number(e.target.value))} className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-emerald-600" />
+        </FadeIn>
+        <FadeIn delay={250}>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-4">
+             <label className="text-xs sm:text-sm font-medium tracking-widest text-zinc-500 uppercase">Expected SIP Return</label>
+            <div className="text-xl sm:text-2xl font-light text-emerald-600 bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-200 w-full sm:w-auto">{sipReturn}%</div>
+          </div>
+          <input type="range" min="8" max="25" step="0.5" value={sipReturn} onChange={(e) => setSipReturn(Number(e.target.value))} className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-emerald-600" />
+        </FadeIn>
+      </div>
+      <div className="lg:col-span-5">
+        <FadeIn delay={300} className="bg-zinc-950 text-white p-8 sm:p-10 lg:p-12 xl:p-16 rounded-[2rem] sm:rounded-[2.5rem] h-full flex flex-col justify-between relative overflow-hidden shadow-2xl">
+          <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-emerald-600/30 to-transparent rounded-full blur-[60px] pointer-events-none"></div>
+          
+          <div className="space-y-6 relative z-10 mb-8">
+            <div className="flex justify-between items-end border-b border-zinc-800 pb-4">
+              <p className="text-sm font-medium tracking-widest text-zinc-400 uppercase">Your EMI</p>
+              <p className="text-xl font-light text-white">{formatCurrency(emi)}</p>
+            </div>
+            <div className="flex justify-between items-end border-b border-zinc-800 pb-4">
+              <p className="text-sm font-medium tracking-widest text-zinc-400 uppercase">Total Interest Paid</p>
+              <p className="text-xl font-light text-red-400">{formatCurrency(totalInterestPaid)}</p>
+            </div>
+          </div>
+
+          <div className="pt-6 relative z-10">
+            <p className="text-sm font-bold tracking-widest text-emerald-400 uppercase mb-4">Required Monthly SIP to recover 100% of interest</p>
+            <p className="text-5xl sm:text-6xl md:text-7xl font-light text-white tracking-tight leading-none mb-6">{formatCurrency(requiredSip)}</p>
+            <div className="inline-flex items-center gap-2 bg-emerald-900/40 border border-emerald-500/30 text-emerald-300 text-sm font-medium px-4 py-2 rounded-full">
+              <Sparkles className="w-4 h-4" /> That's just {sipPercentageOfEmi}% of your EMI amount!
+            </div>
           </div>
         </FadeIn>
       </div>
@@ -913,6 +995,7 @@ const CalculatorsPage = ({ setCurrentPage }) => {
     { id: 'stepup', name: 'Step-Up SIP', icon: Zap },
     { id: 'lumpsum', name: 'Lumpsum', icon: Briefcase },
     { id: 'emivssip', name: 'EMI vs SIP', icon: Target },
+    { id: 'smartemi', name: 'Smart EMI', icon: Sparkles },
     { id: 'fire', name: 'F.I.R.E Target', icon: Map },
     { id: 'goal', name: 'Goal Planner', icon: Star },
   ];
@@ -949,7 +1032,7 @@ const CalculatorsPage = ({ setCurrentPage }) => {
                       : 'bg-white text-zinc-500 border-zinc-200 hover:border-zinc-400 hover:text-zinc-900'
                   }`}
                 >
-                  <tab.icon className="w-4 h-4 shrink-0" strokeWidth={activeTab === tab.id ? 2 : 1.5} />
+                  <tab.icon className={`w-4 h-4 shrink-0 ${activeTab === tab.id && tab.id === 'smartemi' ? 'text-emerald-400' : ''}`} strokeWidth={activeTab === tab.id ? 2 : 1.5} />
                   {tab.name}
                 </button>
               ))}
@@ -962,6 +1045,7 @@ const CalculatorsPage = ({ setCurrentPage }) => {
             {activeTab === 'stepup' && <StepUpCalculatorWidget />}
             {activeTab === 'lumpsum' && <LumpsumCalculatorWidget />}
             {activeTab === 'emivssip' && <EmiVsSipCalculatorWidget />}
+            {activeTab === 'smartemi' && <SmartEmiCalculatorWidget />}
             {activeTab === 'fire' && <FireCalculatorWidget />}
             {activeTab === 'goal' && <GoalCalculatorWidget />}
           </div>
