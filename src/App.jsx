@@ -45,7 +45,7 @@ const predictiveData = {
 
 // --- API HELPER: DYNAMIC AI GEOCODING & INTEL ---
 const generateLocationDataAI = async (locationQuery) => {
-  const apiKey = ""; // Strict Rule: Left empty for environment injection
+  const apiKey = "AIzaSyBNhUjAtl7ks-ojlQN6cSyohrVAkwGXIkk"; // Strict Rule: Left empty for environment injection
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
   
   const prompt = `Act as a real estate data geocoder and market analyst. Analyze the location: "${locationQuery}".
