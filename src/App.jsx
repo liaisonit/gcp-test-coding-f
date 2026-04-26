@@ -3,10 +3,6 @@ import {
   Clock, AlertTriangle, ChevronRight, Mail, Phone, Briefcase, Lock, 
   ShieldAlert, LogOut, CheckCircle2, Zap, PenTool, X, KeyRound, User, BookOpen, FastForward
 } from 'lucide-react';
-import { initializeApp } from 'firebase/app';
-import { 
-  getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged 
-} from 'firebase/auth';
 
 // --- SUPABASE CONFIGURATION ---
 const SUPABASE_URL = "https://hbkceapaopwxbcolpegd.supabase.co";
